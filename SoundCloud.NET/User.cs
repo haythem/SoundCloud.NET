@@ -16,7 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using System;
 using System.Collections.Generic;
 using System.Runtime.Serialization;
 
@@ -111,7 +110,7 @@ namespace SoundCloud.NET
         /// </summary>
         public List<User> GetFollowings()
         {
-            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.UserFollowings, this.Id);
+            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.UserFollowings, Id);
         }
 
         /// <summary>
@@ -131,7 +130,7 @@ namespace SoundCloud.NET
         /// <param name="id">User id to follow.</param>
         public void AddFollowing(int id)
         {
-            SoundCloudApi.ApiAction<User>(ApiCommand.UserFollowingsContact, HttpMethod.Put, this.Id, id);
+            SoundCloudApi.ApiAction<User>(ApiCommand.UserFollowingsContact, HttpMethod.Put, Id, id);
         }
 
         /// <summary>
@@ -151,15 +150,15 @@ namespace SoundCloud.NET
         /// <param name="id">User id to remove.</param>
         public void RemoveFollowing(int id)
         {
-            SoundCloudApi.ApiAction<User>(ApiCommand.UserFollowingsContact, HttpMethod.Delete, this.Id, id);
+            SoundCloudApi.ApiAction<User>(ApiCommand.UserFollowingsContact, HttpMethod.Delete, Id, id);
         }
 
         /// <summary>
-        /// Returns a collection of users who follow the user with user id<
+        /// Returns a collection of users who follow the user with user id
         /// </summary>
         public List<User> GetFollowers()
         {
-            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.UserFollowers, this.Id);
+            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.UserFollowers, Id);
         }
 
         /// <summary>
@@ -167,7 +166,7 @@ namespace SoundCloud.NET
         /// </summary>
         public List<Track> GetTracks()
         {
-            return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.UserTracks, this.Id);
+            return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.UserTracks, Id);
         }
 
         /// <summary>
@@ -175,7 +174,7 @@ namespace SoundCloud.NET
         /// </summary>
         public List<Track> GetFavorites()
         {
-            return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.UserFavorites, this.Id);
+            return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.UserFavorites, Id);
         }
 
         /// <summary>
@@ -183,15 +182,15 @@ namespace SoundCloud.NET
         /// </summary>
         public List<Group> GetGroups()
         {
-            return SoundCloudApi.ApiAction<List<Group>>(ApiCommand.UserGroups, this.Id);
+            return SoundCloudApi.ApiAction<List<Group>>(ApiCommand.UserGroups, Id);
         }
 
         /// <summary>
-        /// Returns a collection of playlists created by user with user id<
+        /// Returns a collection of playlists created by user with user id
         /// </summary>
         public List<Playlist> GetPlaylists(int id)
         {
-            return SoundCloudApi.ApiAction<List<Playlist>>(ApiCommand.UserPlaylists, this.Id);
+            return SoundCloudApi.ApiAction<List<Playlist>>(ApiCommand.UserPlaylists, Id);
         }
 
         #endregion Public Methods
@@ -213,7 +212,7 @@ namespace SoundCloud.NET
         /// <param name="count">Users count.</param>
         public static List<User> GetUsers(int count)
         {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
+            var parameters = new Dictionary<string, object>();
 
             parameters.Add("limit", count);
 
@@ -227,7 +226,7 @@ namespace SoundCloud.NET
         /// <param name="id">User id.</param>
         public static User GetUser(int id)
         {
-            return SoundCloudApi.ApiAction<User>(ApiCommand.User, id);
+            return SoundCloudApi.ApiAction<User>(ApiCommand.User, false, id);
         }
 
         /// <summary>
@@ -245,9 +244,7 @@ namespace SoundCloud.NET
         /// <param name="term">a term to search for.</param>
         public static List<User> Search(string term)
         {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-
-            parameters.Add("q", term);
+            var parameters = new Dictionary<string, object> { { "q", term } };
 
             return SoundCloudApi.ApiAction<List<User>>(ApiCommand.Users, parameters);
         }

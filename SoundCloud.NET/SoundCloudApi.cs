@@ -33,7 +33,7 @@ namespace SoundCloud.NET
         /// <summary>
         /// List of the api action associated to api commands.
         /// </summary>
-        private static Dictionary<ApiCommand, Uri> ApiDictionary = new Dictionary<ApiCommand, Uri>()
+        private static readonly Dictionary<ApiCommand, Uri> ApiDictionary = new Dictionary<ApiCommand, Uri>
         {
             //Authorization
             { ApiCommand.AuthorizationCodeFlow, new Uri("https://soundcloud.com/connect?scope=non-expiring&client_id={0}&response_type={1}&redirect_uri={2}") },
@@ -101,25 +101,8 @@ namespace SoundCloud.NET
 
         #region Shared Methods
 
-        /// <summary>
-        /// Executes an api action.
-        /// </summary>
-        /// 
-        /// <param name="command">Api command.</param>
-        public static T ApiAction<T>(ApiCommand command)
-        {
-            return ApiAction<T>(ApiDictionary[command]);
-        }
 
-        /// <summary>
-        /// Executes an api action.
-        /// </summary>
-        /// <param name="command">Api command.</param>
-        /// <param name="method">Http method. <seealso cref="HttpMethod"/>.</param>
-        public static T ApiAction<T>(ApiCommand command, HttpMethod method)
-        {
-            return ApiAction<T>(ApiDictionary[command], method);
-        }
+
 
         /// <summary>
         /// Executes an api action.
@@ -129,10 +112,13 @@ namespace SoundCloud.NET
         /// <param name="parameters">Parameters format of an api command uri.</param>
         public static T ApiAction<T>(ApiCommand command, params object[] parameters)
         {
-            Uri uri = Utils.FormatToUri(ApiDictionary[command], parameters);
+            var uri =
+                ApiDictionary[command]
+                    .With(parameters);
 
             return ApiAction<T>(uri);
         }
+
 
         /// <summary>
         /// Executes an api action.
@@ -143,9 +129,11 @@ namespace SoundCloud.NET
         /// <param name="parameters">Parameters format of an api command uri.</param>
         public static T ApiAction<T>(ApiCommand command, HttpMethod method, params object[] parameters)
         {
-            Uri uri = Utils.FormatToUri(ApiDictionary[command], parameters);
+            var uri =
+                ApiDictionary[command]
+                    .With(parameters);
 
-            bool requireAuthentication = command == ApiCommand.UserCredentialsFlow ? false : true;
+            bool requireAuthentication = command != ApiCommand.UserCredentialsFlow;
 
             return ApiAction<T>(uri, method, requireAuthentication);
         }
@@ -158,24 +146,14 @@ namespace SoundCloud.NET
         /// <param name="extraParameters">Dictionnary of parameters to be passed in the api action uri.</param>
         public static T ApiAction<T>(ApiCommand command, Dictionary<string, object> extraParameters)
         {
-            Uri uri = Utils.AddParametersToUri(ApiDictionary[command], extraParameters);
+            var uri =
+                ApiDictionary[command]
+                    .UriAppendingParameters(extraParameters);
+
 
             return ApiAction<T>(uri);
         }
 
-        /// <summary>
-        /// Executes an api action.
-        /// </summary>
-        /// 
-        /// <param name="command">Api command.</param>
-        /// <param name="method">Http method. <seealso cref="HttpMethod"/>.</param>
-        /// <param name="extraParameters">Dictionnary of parameters to be passed in the api action uri.</param>
-        public static T ApiAction<T>(ApiCommand command, HttpMethod method, Dictionary<string, object> extraParameters)
-        {
-            Uri uri = Utils.AddParametersToUri(ApiDictionary[command], extraParameters);
-
-            return ApiAction<T>(uri, method);
-        }
 
         /// <summary>
         /// 
@@ -187,9 +165,10 @@ namespace SoundCloud.NET
         /// <param name="parameters"></param>
         public static T ApiAction<T>(ApiCommand command, HttpMethod method, Dictionary<string, object> extraParameters, params object[] parameters)
         {
-            Uri uri = Utils.AddParametersToUri(ApiDictionary[command], extraParameters);
-
-            uri = Utils.FormatToUri(uri, parameters);
+            var uri =
+                ApiDictionary[command]
+                    .UriAppendingParameters(extraParameters)
+                    .With(parameters);
 
             return ApiAction<T>(uri, method);
         }
@@ -207,17 +186,22 @@ namespace SoundCloud.NET
         {
             Uri api = uri;
 
-            //If api action requires a token.
             if (requireAuthentication)
-            {
-                api = Utils.AuthorizedUri(api, SoundCloudAccessToken.AccessToken);
-            }
+                if (SoundCloudAccessToken == null)
+                {
+                    if (string.IsNullOrEmpty(SoundCloudClientID))
+                        throw new SoundCloudException("Please authenticate using the SoundCloudClient class contructor before making an API call");
+                    // try an unauthenticated request
+                    api = uri.UriWithClientID(SoundCloudClientID);
+                }
+                else
+                {
+                    api = uri.UriWithAuthorizedUri(SoundCloudAccessToken.AccessToken);
+                }
 
-            string json = string.Empty;
+            var request = WebRequest.Create(api);
 
-            WebRequest request = WebRequest.Create(api);
-
-            request.Method = method.ToString().ToUpper();
+            request.Method = method.ToString().ToUpperInvariant();
 
             // Force returned type to JSON
             request.ContentType = "application/json";
@@ -233,19 +217,18 @@ namespace SoundCloud.NET
 
                 response = (HttpWebResponse)request.GetResponse();
 
-                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode ==  HttpStatusCode.Created)
+                if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                 {
-                    Stream stream = response.GetResponseStream();
+                    var stream = response.GetResponseStream();
 
-                    using (StreamReader reader = new StreamReader(stream))
+                    string json;
+
+                    using (var reader = new StreamReader(stream))
                     {
                         json = reader.ReadToEnd();
                     }
 
-                    SoundCloudEventArgs args = new SoundCloudEventArgs();
-
-                    args.RawResponse = json;
-                    args.ReturnedType = typeof(T);
+                    var args = new SoundCloudEventArgs { RawResponse = json, ReturnedType = typeof(T) };
 
                     //OnApiActionExecuted Event
                     OnApiActionExecuted(args);

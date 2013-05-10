@@ -16,8 +16,6 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-using System;
-
 namespace SoundCloud.NET
 {
     public enum Filter

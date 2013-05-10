@@ -17,16 +17,15 @@
 */
 
 using System;
-using System.Text;
 using System.Collections.Generic;
-using System.Runtime.Serialization;
+using System.Globalization;
 using System.IO;
-using System.Net;
+using System.Runtime.Serialization;
 
 namespace SoundCloud.NET
 {
     /// <summary>
-    /// SoundCloud track.
+    ///   SoundCloud track.
     /// </summary>
     [DataContract]
     public class Track : SoundCloudClient
@@ -37,9 +36,13 @@ namespace SoundCloud.NET
         public int Id { get; set; }
 
         [DataMember(Name = "created_at")]
-        private string creationDate;
+        private string _CreationDate;
 
-        public DateTime CreationDate { get { return (DateTime.Parse(creationDate)); } set { creationDate = value.ToString(); } }
+        public DateTime CreationDate
+        {
+            get { return (DateTime.Parse(_CreationDate)); }
+            set { _CreationDate = value.ToString(CultureInfo.InvariantCulture); }
+        }
 
         [DataMember(Name = "user_id")]
         public int UserId { get; set; }
@@ -175,7 +178,7 @@ namespace SoundCloud.NET
         #region Shared Methods
 
         /// <summary>
-        /// Returns a collection of tracks uploaded by logged-in user.
+        ///   Returns a collection of tracks uploaded by logged-in user.
         /// </summary>
         public static List<Track> MyTacks()
         {
@@ -183,7 +186,7 @@ namespace SoundCloud.NET
         }
 
         /// <summary>
-        /// Returns a collection of tracks.
+        ///   Returns a collection of tracks.
         /// </summary>
         public static List<Track> GetTracks()
         {
@@ -191,36 +194,36 @@ namespace SoundCloud.NET
         }
 
         /// <summary>
-        /// Returns a track by track id.
+        ///   Returns a track by track id.
         /// </summary>
-        /// 
-        /// <param name="id">Track id.</param>
+        /// <param name="id"> Track id. </param>
         public static Track GetTrack(int id)
         {
             return SoundCloudApi.ApiAction<Track>(ApiCommand.Track, id);
         }
 
         /// <summary>
-        /// Returns a collection of tracks after filtering.
+        ///   Returns a collection of tracks after filtering.
         /// </summary>
-        /// 
-        /// <param name="term"></param>
-        /// <param name="tags"></param>
-        /// <param name="filter"></param>
-        /// <param name="license"></param>
-        /// <param name="order"></param>
-        /// <param name="bpmFrom"></param>
-        /// <param name="bpmTo"></param>
-        /// <param name="durationFrom"></param>
-        /// <param name="durationTo"></param>
-        /// <param name="from"></param>
-        /// <param name="to"></param>
-        /// <param name="ids"></param>
-        /// <param name="genres"></param>
-        /// <param name="types"></param>
-        public static List<Track> Search(string term, string[] tags, Filter filter, string license, string order, int? bpmFrom, int? bpmTo, int? durationFrom, int? durationTo, DateTime from, DateTime to, int[] ids, string[] genres, string[] types)
+        /// <param name="term"> </param>
+        /// <param name="tags"> </param>
+        /// <param name="filter"> </param>
+        /// <param name="license"> </param>
+        /// <param name="order"> </param>
+        /// <param name="bpmFrom"> </param>
+        /// <param name="bpmTo"> </param>
+        /// <param name="durationFrom"> </param>
+        /// <param name="durationTo"> </param>
+        /// <param name="from"> </param>
+        /// <param name="to"> </param>
+        /// <param name="ids"> </param>
+        /// <param name="genres"> </param>
+        /// <param name="types"> </param>
+        public static List<Track> Search(string term, string[] tags, Filter filter, string license, string order,
+                                         int? bpmFrom, int? bpmTo, int? durationFrom, int? durationTo, DateTime from,
+                                         DateTime to, int[] ids, string[] genres, string[] types)
         {
-            Dictionary<string, object> filters = new Dictionary<string, object>();
+            var filters = new Dictionary<string, object>();
 
             if (term != null)
             {
@@ -228,24 +231,11 @@ namespace SoundCloud.NET
             }
             if (tags != null && tags.Length > 0)
             {
-                if (tags.Length == 1)
-                    filters.Add("tags", tags[0]);
-                else
-                {
-                    string t = string.Empty;
-
-                    foreach (string tag in tags)
-                    {
-                        t += string.Concat(tag, ",");
-                    }
-
-                    filters.Add("tags", t);
-                }
+                filters.Add("tags", String.Join(",", tags));
             }
-            if (filter != null)
-            {
-                filters.Add("filter", filter.ToString().ToLower());
-            }
+
+            filters.Add("filter", filter.ToString().ToLower());
+
             if (license != null)
             {
                 filters.Add("license", license);
@@ -271,45 +261,16 @@ namespace SoundCloud.NET
             }
             if (ids != null && ids.Length > 0)
             {
-                if (ids.Length == 1)
-                    filters.Add("ids", ids[0]);
-                else
-                {
-                    string i = string.Empty;
+                filters.Add("ids", String.Join(",", ids));
 
-                    foreach (int id in ids)
-                    {
-                        i += string.Concat(id, ",");
-                    }
-                }
             }
             if (genres != null && genres.Length > 0)
             {
-                if (genres.Length == 1)
-                    filters.Add("genres", genres[0]);
-                else
-                {
-                    string g = string.Empty;
-
-                    foreach (string genre in genres)
-                    {
-                        g += string.Concat(genre, ",");
-                    }
-                }
+                filters.Add("genres", String.Join(",", genres));
             }
             if (types != null && types.Length > 0)
             {
-                if (types.Length == 1)
-                    filters.Add("types", types[0]);
-                else
-                {
-                    string t = string.Empty;
-
-                    foreach (string type in types)
-                    {
-                        t += string.Concat(type, ",");
-                    }
-                }
+                filters.Add("types", String.Join(",", types));
             }
 
             return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.Tracks, filters);
@@ -318,30 +279,28 @@ namespace SoundCloud.NET
         #endregion
 
         /// <summary>
-        /// Upload a track to sound cloud.
+        ///   Upload a track to sound cloud.
         /// </summary>
-        /// 
         /// <remarks>
-        /// To upload a track, you have to specify the following properties :
-        ///  * Uri : the path of the file on your computer.
-        ///  * Title : title of the track.
-        ///  * Description : a brief description of the track.
-        ///  * Sharing : public or private.
+        ///   To upload a track, you have to specify the following properties :
+        ///   * Uri : the path of the file on your computer.
+        ///   * Title : title of the track.
+        ///   * Description : a brief description of the track.
+        ///   * Sharing : public or private.
         /// </remarks>
         public void Add()
         {
-            if (this.Uri != null && this.Title != null && this.Description != null && this.Sharing != null)
+            if (Uri != null && Title != null && Description != null && Sharing != null)
             {
-                if (File.Exists(Path.GetFullPath(this.Uri)))
+                if (File.Exists(Path.GetFullPath(Uri)))
                 {
-                    Dictionary<string, object> parameters = new Dictionary<string, object>();
-
-                    WebClient client = new WebClient();
-
-                    parameters.Add("track[asset_data]", Path.GetFullPath(this.Uri));
-                    parameters.Add("track[title]", this.Title);
-                    parameters.Add("track[description]", this.Description);
-                    parameters.Add("track[sharing]", this.Sharing);
+                    var parameters = new Dictionary<string, object>
+                                         {
+                                             {"track[asset_data]", Path.GetFullPath(Uri)},
+                                             {"track[title]", Title},
+                                             {"track[description]", Description},
+                                             {"track[sharing]", Sharing}
+                                         };
 
                     SoundCloudApi.ApiAction<Track>(ApiCommand.Tracks, HttpMethod.Post, parameters);
                 }
@@ -357,80 +316,71 @@ namespace SoundCloud.NET
         }
 
         /// <summary>
-        /// Deletes a given track.
+        ///   Deletes a given track.
         /// </summary>
-        /// 
-        /// <remarks>To delete a track, you have to be the owner or you have permission to delete it.</remarks>
+        /// <remarks>
+        ///   To delete a track, you have to be the owner or you have permission to delete it.
+        /// </remarks>
         public void Delete()
         {
-            SoundCloudApi.ApiAction<Track>(ApiCommand.Track, HttpMethod.Delete, this.Id);
+            SoundCloudApi.ApiAction<Track>(ApiCommand.Track, HttpMethod.Delete, Id);
         }
 
         /// <summary>
         /// Returns comments of a track by track id.
         /// </summary>
-        /// 
-        /// <param name="id">Track id.</param>
+        /// <returns></returns>
         public List<Comment> GetComments()
         {
-            return SoundCloudApi.ApiAction<List<Comment>>(ApiCommand.TrackComments, this.Id);
+            return SoundCloudApi.ApiAction<List<Comment>>(ApiCommand.TrackComments, Id);
         }
 
         /// <summary>
         /// Returns all users with permission for a track by track id.
         /// </summary>
-        /// 
-        /// <param name="id">Track id.</param>
+        /// <returns></returns>
         public List<User> GetPermissions()
         {
-            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.TrackPermissions, this.Id);
+            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.TrackPermissions, Id);
         }
 
         /// <summary>
         /// Adds the given track to the logged-in user's list of favorites.
         /// </summary>
-        /// 
-        /// <param name="id">Track id.</param>
         public void AddToFavorites()
         {
-            SoundCloudApi.ApiAction<Track>(ApiCommand.MeFavoritesTrack, HttpMethod.Put, this.Id);
+            SoundCloudApi.ApiAction<Track>(ApiCommand.MeFavoritesTrack, HttpMethod.Put, Id);
         }
 
         /// <summary>
-        /// Deletes the given track from the logged-in user's list of favorites.
+        ///   Deletes the given track from the logged-in user's list of favorites.
         /// </summary>
-        /// 
-        /// <param name="id">Track id.</param>
         public void RemoveFromFavorites()
         {
-            SoundCloudApi.ApiAction<Track>(ApiCommand.MeFavoritesTrack, HttpMethod.Delete, this.Id);
+            SoundCloudApi.ApiAction<Track>(ApiCommand.MeFavoritesTrack, HttpMethod.Delete, Id);
         }
 
         /// <summary>
-        /// Share a track to a social network.
+        ///   Share a track to a social network.
         /// </summary>
-        /// 
-        /// <param name="connection">Registered social profile on sound cloud.</param>
+        /// <param name="connection"> Registered social profile on sound cloud. </param>
         public void Share(Connection connection)
         {
             Share(connection, null);
         }
 
         /// <summary>
-        /// Share a track to a social network.
+        ///   Share a track to a social network.
         /// </summary>
-        /// 
-        /// <param name="connection">Registered social profile on sound cloud.</param>
-        /// <param name="sharingNote">String that will be used as status message. This string might be truncated by SoundCloud.</param>
+        /// <param name="connection"> Registered social profile on sound cloud. </param>
+        /// <param name="sharingNote"> String that will be used as status message. This string might be truncated by SoundCloud. </param>
         public void Share(Connection connection, string sharingNote)
         {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-
-            parameters.Add("connections[][id]", connection.Id);
+            var parameters = new Dictionary<string, object> { { "connections[][id]", connection.Id } };
 
             if (sharingNote != null) parameters.Add("sharing_note", sharingNote);
 
-            SoundCloudApi.ApiAction<Track>(ApiCommand.TrackShare, HttpMethod.Post, parameters, this.Id);
+            SoundCloudApi.ApiAction<Track>(ApiCommand.TrackShare, HttpMethod.Post, parameters, Id);
         }
     }
 }
