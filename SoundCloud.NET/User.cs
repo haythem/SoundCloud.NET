@@ -226,7 +226,7 @@ namespace SoundCloud.NET
         /// <param name="id">User id.</param>
         public static User GetUser(int id)
         {
-            return SoundCloudApi.ApiAction<User>(ApiCommand.User, false, id);
+            return SoundCloudApi.ApiAction<User>(ApiCommand.User, id);
         }
 
         /// <summary>
