@@ -1,0 +1,4 @@
+Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\bin\Release\SoundCloud.NET.dll
+Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\bin\Release\SoundCloud.NET.pdb
+Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\obj\Release\SoundCloud.NET.dll
+Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\obj\Release\SoundCloud.NET.pdb

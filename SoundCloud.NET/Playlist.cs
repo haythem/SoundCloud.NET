@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace SoundCloud.NET
@@ -31,11 +32,11 @@ namespace SoundCloud.NET
         public int Id { get; set; }
 
         [DataMember(Name = "created_at")]
-        private string creationDate;
+        private string _CreationDate;
         /// <summary>
         /// Gets or sets the comment's creation date.
         /// </summary>
-        public DateTime CreationDate { get { return (DateTime.Parse(creationDate)); } set { creationDate = value.ToString(); } }
+        public DateTime CreationDate { get { return (DateTime.Parse(_CreationDate)); } set { _CreationDate = value.ToString(CultureInfo.InvariantCulture); } }
 
         [DataMember(Name = "user_id")]
         public int UserId { get; set; }
@@ -97,7 +98,7 @@ namespace SoundCloud.NET
         [DataMember(Name = "release_day")]
         public int? ReleaseDay { get; set; }
 
-        public DateTime RealeaseDate 
+        public DateTime RealeaseDate
         {
             get
             {

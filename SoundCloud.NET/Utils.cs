@@ -18,8 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Net;
 using System.Text;
 
 namespace SoundCloud.NET
@@ -27,18 +25,18 @@ namespace SoundCloud.NET
     /// <summary>
     /// Common helpers.
     /// </summary>
-    public class Utils : SoundCloudClient
+    public static class Utils
     {
         #region Licenses
 
-        protected const string NoRightsReserved = "no-rights-reserved";
-        protected const string AllRightsReserved = "all-rights-reserved";
-        protected const string CcBy = "cc-by";
-        protected const string CcByNc = "cc-by-nc";
-        protected const string CcByNd = "cc-by-nd";
-        protected const string CcBySa = "cc-by-sa";
-        protected const string CcByNcNd = "cc-by-nc-nd";
-        protected const string CcByNcSa = "cc-by-nc-sa";
+        public const string NoRightsReserved = "no-rights-reserved";
+        public const string AllRightsReserved = "all-rights-reserved";
+        public const string CcBy = "cc-by";
+        public const string CcByNc = "cc-by-nc";
+        public const string CcByNd = "cc-by-nd";
+        public const string CcBySa = "cc-by-sa";
+        public const string CcByNcNd = "cc-by-nc-nd";
+        public const string CcByNcSa = "cc-by-nc-sa";
 
         #endregion
 
@@ -50,7 +48,7 @@ namespace SoundCloud.NET
         /// 
         /// <param name="uri">Input Uri.</param>
         /// <param name="keys">Format items.</param>
-        public static Uri FormatToUri(Uri uri, params object[] keys)
+        public static Uri With(this Uri uri, params object[] keys)
         {
             return new Uri(string.Format(uri.ToString(), keys));
         }
@@ -61,24 +59,20 @@ namespace SoundCloud.NET
         /// 
         /// <param name="baseUri">Input Uri.</param>
         /// <param name="token">Token.</param>
-        public static Uri AuthorizedUri(Uri baseUri, string token)
+        public static Uri UriWithAuthorizedUri(this Uri baseUri, string token)
         {
-            string json = ".json";
+            return baseUri.UriAppendingQueryString("oauth_token", token);
+        }
 
-            string baseToken = "?oauth_token=" + token;
-
-            string newUri = string.Empty;
-
-            if (baseUri.ToString().IndexOf(json) != -1)
-            {
-                newUri = baseUri.ToString().Insert(baseUri.ToString().IndexOf(json) + json.Length, baseToken);
-            }
-            else
-            {
-                newUri = baseUri.ToString().Insert(baseUri.ToString().IndexOf("&"), baseToken);
-            }
-
-            return new Uri(newUri);
+        /// <summary>
+        /// Returns a Uri with authorization segment.
+        /// </summary>
+        /// <param name="baseUri">Input Uri.</param>
+        /// <param name="clientID">The client ID.</param>
+        /// <returns></returns>
+        public static Uri UriWithClientID(this Uri baseUri, string clientID)
+        {
+            return baseUri.UriAppendingQueryString("client_id", clientID);
         }
 
         /// <summary>
@@ -87,16 +81,35 @@ namespace SoundCloud.NET
         /// 
         /// <param name="baseUri">Input uri.</param>
         /// <param name="parameters">Dictionnary of^parameters to add.</param>
-        public static Uri AddParametersToUri(Uri baseUri, Dictionary<string, object> parameters)
+        public static Uri UriAppendingParameters(this Uri baseUri, Dictionary<string, object> parameters)
         {
-            StringBuilder sb = new StringBuilder(baseUri.ToString());
+
+            var sb = new StringBuilder();
 
             foreach (KeyValuePair<string, object> pair in parameters)
             {
-                sb.AppendFormat("&{0}={1}", pair.Key, pair.Value);
+                sb.AppendFormat("{0}={1}&", pair.Key, pair.Value);
             }
 
-            return new Uri(sb.ToString());
+            return baseUri.UriAppendingQueryString(sb.ToString().TrimEnd('&'));
+        }
+        public static Uri UriAppendingQueryString(this Uri uri, string name, string value)
+        {
+            return
+                new UriBuilder(uri)
+                    {
+                        Query = (uri.Query + "&" + name + "=" + value).TrimStart('&')
+                    }
+                    .Uri;
+        }
+        public static Uri UriAppendingQueryString(this Uri uri, string querystring)
+        {
+            return
+                new UriBuilder(uri)
+                {
+                    Query = (uri.Query + "&" + querystring).TrimStart('&')
+                }
+                .Uri;
         }
 
         #endregion Uri

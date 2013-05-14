@@ -48,6 +48,9 @@ namespace SoundCloud.NET
 
         protected static SoundCloudAccessToken SoundCloudAccessToken = null;
 
+        protected static String SoundCloudClientID = null;
+
+
         #region Constructors
 
         /// <summary>
@@ -63,6 +66,7 @@ namespace SoundCloud.NET
         public SoundCloudClient(SoundCloudCredentials credentials)
         {
             Credentials = credentials;
+            SoundCloudClientID = credentials.ClientID;
         }
 
         #endregion Constructors
