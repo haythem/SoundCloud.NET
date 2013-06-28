@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Runtime.Serialization;
 
 namespace SoundCloud.NET
@@ -34,11 +35,11 @@ namespace SoundCloud.NET
         public int Id { get; set; }
 
         [DataMember(Name = "created_at")]
-        private string creationDate;
+        private string _CreationDate;
         /// <summary>
         /// Gets or sets the comment's creation date.
         /// </summary>
-        public DateTime CreationDate { get { return (DateTime.Parse(creationDate)); } set { creationDate = value.ToString(); } }
+        public DateTime CreationDate { get { return (DateTime.Parse(_CreationDate)); } set { _CreationDate = value.ToString(CultureInfo.InvariantCulture); } }
 
         [DataMember(Name = "permalink")]
         public string Permalink { get; set; }
@@ -71,51 +72,46 @@ namespace SoundCloud.NET
         /// <summary>
         /// Returns a combined collection of moderators, members and contributors of the group with group id.
         /// </summary>
-        /// 
-        /// <param name="id">Group id.</param>        
+        /// <returns></returns>
         public List<User> GetUsers()
         {
-            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupUsers, this.Id);
+            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupUsers, Id);
         }
 
         /// <summary>
         /// Returns a collection of moderators of the group with group id.
         /// </summary>
-        /// 
-        /// <param name="id">Group id.</param>
+        /// <returns></returns>
         public List<User> GetModerators()
         {
-            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupModerators, this.Id);
+            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupModerators, Id);
         }
 
         /// <summary>
         /// Returns a collection of members of the group with group id.
         /// </summary>
-        /// 
-        /// <param name="id">Group id.</param>
+        /// <returns></returns>
         public List<User> GetMembers()
         {
-            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupMembers, this.Id);
+            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupMembers, Id);
         }
 
         /// <summary>
         /// Returns a collection of contributors of the group with group id.
         /// </summary>
-        /// 
-        /// <param name="id">Group id.</param>
+        /// <returns></returns>
         public List<User> GetContributors()
         {
-            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupContributors, this.Id);
+            return SoundCloudApi.ApiAction<List<User>>(ApiCommand.GroupContributors, Id);
         }
 
         /// <summary>
         /// Returns a collection of tracks contributed to the group with group id.
         /// </summary>
-        /// 
-        /// <param name="id">Group id.</param>
+        /// <returns></returns>
         public List<Track> GetTracks()
         {
-            return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.GroupTracks, this.Id);
+            return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.GroupTracks, Id);
         }
 
         #endregion Public Methods
@@ -146,9 +142,7 @@ namespace SoundCloud.NET
         /// <param name="term">Term to search for.</param>
         public static List<Group> Search(string term)
         {
-            Dictionary<string, object> parameters = new Dictionary<string, object>();
-
-            parameters.Add("q", term);
+            var parameters = new Dictionary<string, object> {{"q", term}};
 
             return SoundCloudApi.ApiAction<List<Group>>(ApiCommand.Groups, parameters);
         }
