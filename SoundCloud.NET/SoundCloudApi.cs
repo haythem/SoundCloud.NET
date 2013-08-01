@@ -181,9 +181,8 @@ namespace SoundCloud.NET
         /// <param name="uri">Uri of the api command</param>
         /// <param name="method">Http method. <seealso cref="HttpMethod"/>.</param>
         /// <param name="requireAuthentication">The action requires an authentication or not.</param>
-        /// <param name="useGzip">the action can responde as gzip content (--> smaller and faster responses).</param>
         /// <returns>An object returned back from the api action.</returns>
-        public static T ApiAction<T>(Uri uri, HttpMethod method = HttpMethod.Get, bool requireAuthentication = true, bool useGzip = true)
+        public static T ApiAction<T>(Uri uri, HttpMethod method = HttpMethod.Get, bool requireAuthentication = true)
         {
             Uri api = uri;
 
@@ -208,7 +207,7 @@ namespace SoundCloud.NET
             request.ContentType = "application/json";
 
             //add gzip enabled header
-            if (useGzip) request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
+            if (EnableGZip) request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
             if (method == HttpMethod.Put) request.ContentLength = 0;
 
             HttpWebResponse response = null;
@@ -233,7 +232,7 @@ namespace SoundCloud.NET
                             stream = new GZipStream(stream, CompressionMode.Decompress);
                         }
                     }
-                    catch (Exception) {/*no gziped response found*/}
+                    catch (Exception) {/* no ziped response found, return to normal */}
 
 
                     string json;
@@ -244,7 +243,7 @@ namespace SoundCloud.NET
                     }
 
                     //close stream
-                    if (stream != null) stream.Close();
+                    stream.Close();
 
                     var args = new SoundCloudEventArgs { RawResponse = json, ReturnedType = typeof(T) };
 

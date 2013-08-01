@@ -50,6 +50,7 @@ namespace SoundCloud.NET
 
         protected static String SoundCloudClientID = null;
 
+        protected static Boolean EnableGZip = false;
 
         #region Constructors
 
@@ -67,6 +68,8 @@ namespace SoundCloud.NET
         {
             Credentials = credentials;
             SoundCloudClientID = credentials.ClientID;
+
+            EnableGZip = true;
         }
 
         #endregion Constructors
