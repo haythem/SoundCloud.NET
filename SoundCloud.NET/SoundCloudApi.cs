@@ -19,6 +19,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 
 namespace SoundCloud.NET
@@ -180,7 +181,6 @@ namespace SoundCloud.NET
         /// <param name="uri">Uri of the api command</param>
         /// <param name="method">Http method. <seealso cref="HttpMethod"/>.</param>
         /// <param name="requireAuthentication">The action requires an authentication or not.</param>
-        /// 
         /// <returns>An object returned back from the api action.</returns>
         public static T ApiAction<T>(Uri uri, HttpMethod method = HttpMethod.Get, bool requireAuthentication = true)
         {
@@ -206,6 +206,8 @@ namespace SoundCloud.NET
             // Force returned type to JSON
             request.ContentType = "application/json";
 
+            //add gzip enabled header
+            if (EnableGZip) request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
             if (method == HttpMethod.Put) request.ContentLength = 0;
 
             HttpWebResponse response = null;
@@ -221,12 +223,27 @@ namespace SoundCloud.NET
                 {
                     var stream = response.GetResponseStream();
 
+                    //check for gzipped response and unzip it
+                    try
+                    {
+                        if (response.Headers[HttpResponseHeader.ContentEncoding].Equals("gzip") ||
+                            response.Headers[HttpResponseHeader.ContentEncoding].Equals("deflate"))
+                        {
+                            stream = new GZipStream(stream, CompressionMode.Decompress);
+                        }
+                    }
+                    catch (Exception) {/* no ziped response found, return to normal */}
+
+
                     string json;
 
                     using (var reader = new StreamReader(stream))
                     {
                         json = reader.ReadToEnd();
                     }
+
+                    //close stream
+                    stream.Close();
 
                     var args = new SoundCloudEventArgs { RawResponse = json, ReturnedType = typeof(T) };
 
