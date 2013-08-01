@@ -226,8 +226,8 @@ namespace SoundCloud.NET
                     //check for gzipped response and unzip it
                     try
                     {
-                        if (response.Headers[HttpResponseHeader.ContentType].Equals("gzip") ||
-                            response.Headers[HttpResponseHeader.ContentType].Equals("deflate"))
+                        if (response.Headers[HttpResponseHeader.ContentEncoding].Equals("gzip") ||
+                            response.Headers[HttpResponseHeader.ContentEncoding].Equals("deflate"))
                         {
                             stream = new GZipStream(stream, CompressionMode.Decompress);
                         }

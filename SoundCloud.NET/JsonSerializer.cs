@@ -59,13 +59,20 @@ namespace SoundCloud.NET
         /// <returns></returns>
         public static T Deserialize<T>(string json)
         {
-            MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(json));
+            try
+            {
+                MemoryStream stream = new MemoryStream(Encoding.Unicode.GetBytes(json));
 
-            DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof(T));
+                DataContractJsonSerializer deserializer = new DataContractJsonSerializer(typeof (T));
 
-            T result = (T)deserializer.ReadObject(stream);
+                T result = (T) deserializer.ReadObject(stream);
 
-            return result;
+                return result;
+            }
+            catch (Exception ex)
+            {
+                return default(T);
+            }
         }
     }
 }
