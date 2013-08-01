@@ -1,4 +1,0 @@
-Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\bin\Debug\SoundCloud.NET.dll
-Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\bin\Debug\SoundCloud.NET.pdb
-Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\obj\Debug\SoundCloud.NET.dll
-Z:\Projects\SoundCloud.NET Fork\SoundCloud.NET\obj\Debug\SoundCloud.NET.pdb
