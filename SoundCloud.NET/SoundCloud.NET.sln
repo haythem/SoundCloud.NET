@@ -1,0 +1,26 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SoundCloud.NET", "SoundCloud.NET.csproj", "{ED12511E-C910-4F75-9EC2-36520AC4E88F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test", "..\Test\Test.csproj", "{BDA8333C-76E3-4F1D-8274-F8D3982769EA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{ED12511E-C910-4F75-9EC2-36520AC4E88F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ED12511E-C910-4F75-9EC2-36520AC4E88F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ED12511E-C910-4F75-9EC2-36520AC4E88F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ED12511E-C910-4F75-9EC2-36520AC4E88F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDA8333C-76E3-4F1D-8274-F8D3982769EA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDA8333C-76E3-4F1D-8274-F8D3982769EA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDA8333C-76E3-4F1D-8274-F8D3982769EA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDA8333C-76E3-4F1D-8274-F8D3982769EA}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
