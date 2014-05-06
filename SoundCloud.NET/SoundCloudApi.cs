@@ -205,7 +205,8 @@ namespace SoundCloud.NET
 
             // Force returned type to JSON
             request.ContentType = "application/json";
-
+            request.ContentLength = 0;
+            
             //add gzip enabled header
             if (EnableGZip) request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
             request.ContentLength = 0;
