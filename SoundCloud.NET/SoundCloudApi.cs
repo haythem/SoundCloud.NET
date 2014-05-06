@@ -208,7 +208,7 @@ namespace SoundCloud.NET
 
             //add gzip enabled header
             if (EnableGZip) request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
-            if (method == HttpMethod.Put) request.ContentLength = 0;
+            request.ContentLength = 0;
 
             HttpWebResponse response = null;
 

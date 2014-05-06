@@ -221,7 +221,7 @@ namespace SoundCloud.NET
         /// <param name="types"> </param>
         public static List<Track> Search(string term, string[] tags, Filter filter, string license, string order,
                                          int? bpmFrom, int? bpmTo, int? durationFrom, int? durationTo, DateTime from,
-                                         DateTime to, int[] ids, string[] genres, string[] types)
+                                         DateTime to, int[] ids, string[] genres, string[] types, int offset = 0, int limit = 100)
         {
             var filters = new Dictionary<string, object>();
 
@@ -272,7 +272,14 @@ namespace SoundCloud.NET
             {
                 filters.Add("types", String.Join(",", types));
             }
-
+            if (offset > 0)
+            {
+                filters.Add("offset", offset > 8000 ? 8000 : offset);
+            }
+            if (limit > 0)
+            {
+                filters.Add("limit", limit > 200 ? 200 : limit);
+            }
             return SoundCloudApi.ApiAction<List<Track>>(ApiCommand.Tracks, filters);
         }
 
