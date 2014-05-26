@@ -203,6 +203,16 @@ namespace SoundCloud.NET
         }
 
         /// <summary>
+        ///   Returns a track by track permanent url.
+        /// </summary>
+        /// <param name="id"> Track id. </param>
+        public static Track GetTrack(string url)
+        {
+            return SoundCloudApi.ApiAction<Track>(ApiCommand.Resolve, url);
+        }
+
+
+        /// <summary>
         ///   Returns a collection of tracks after filtering.
         /// </summary>
         /// <param name="term"> </param>

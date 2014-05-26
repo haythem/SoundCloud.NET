@@ -23,6 +23,7 @@ namespace SoundCloud.NET
     /// <summary>
     /// Handles SoundCloud api exceptions.
     /// </summary>
+    [Serializable]
     public class SoundCloudException : Exception
     {
         /// <summary>

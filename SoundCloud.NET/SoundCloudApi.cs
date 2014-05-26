@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
+using System.Linq;
 using System.Net;
 
 namespace SoundCloud.NET
@@ -95,7 +96,7 @@ namespace SoundCloud.NET
             { ApiCommand.Playlist,              new Uri("https://api.soundcloud.com/playlists/{0}.json") },
 
             //Resolver
-            { ApiCommand.Resolve,               new Uri("https://api.soundcloud.com/resolve.json?url={0}") },
+            { ApiCommand.Resolve,               new Uri("https://api.soundcloud.com/resolve?url={0}") },
         };
 
         #endregion Private Properties
@@ -113,10 +114,7 @@ namespace SoundCloud.NET
         /// <param name="parameters">Parameters format of an api command uri.</param>
         public static T ApiAction<T>(ApiCommand command, params object[] parameters)
         {
-            var uri =
-                ApiDictionary[command]
-                    .With(parameters);
-
+            var uri = ApiDictionary[command].With(parameters);
             return ApiAction<T>(uri);
         }
 
@@ -130,12 +128,8 @@ namespace SoundCloud.NET
         /// <param name="parameters">Parameters format of an api command uri.</param>
         public static T ApiAction<T>(ApiCommand command, HttpMethod method, params object[] parameters)
         {
-            var uri =
-                ApiDictionary[command]
-                    .With(parameters);
-
+            var uri = ApiDictionary[command].With(parameters);
             bool requireAuthentication = command != ApiCommand.UserCredentialsFlow;
-
             return ApiAction<T>(uri, method, requireAuthentication);
         }
 
@@ -147,11 +141,7 @@ namespace SoundCloud.NET
         /// <param name="extraParameters">Dictionnary of parameters to be passed in the api action uri.</param>
         public static T ApiAction<T>(ApiCommand command, Dictionary<string, object> extraParameters)
         {
-            var uri =
-                ApiDictionary[command]
-                    .UriAppendingParameters(extraParameters);
-
-
+            var uri = ApiDictionary[command].UriAppendingParameters(extraParameters);
             return ApiAction<T>(uri);
         }
 
@@ -166,11 +156,7 @@ namespace SoundCloud.NET
         /// <param name="parameters"></param>
         public static T ApiAction<T>(ApiCommand command, HttpMethod method, Dictionary<string, object> extraParameters, params object[] parameters)
         {
-            var uri =
-                ApiDictionary[command]
-                    .UriAppendingParameters(extraParameters)
-                    .With(parameters);
-
+            var uri = ApiDictionary[command].UriAppendingParameters(extraParameters).With(parameters);
             return ApiAction<T>(uri, method);
         }
 
@@ -199,12 +185,15 @@ namespace SoundCloud.NET
                     api = uri.UriWithAuthorizedUri(SoundCloudAccessToken.AccessToken);
                 }
 
-            var request = WebRequest.Create(api);
+            var request = (HttpWebRequest)WebRequest.Create(api);
+
+            request.AllowAutoRedirect = false;
 
             request.Method = method.ToString().ToUpperInvariant();
 
             // Force returned type to JSON
             request.ContentType = "application/json";
+            request.ContentLength = 0;
 
             //add gzip enabled header
             if (EnableGZip) request.Headers.Add(HttpRequestHeader.AcceptEncoding, "gzip, deflate");
@@ -216,8 +205,24 @@ namespace SoundCloud.NET
             {
                 //OnApiActionExecuting Event
                 OnApiActionExecuting(EventArgs.Empty);
-
                 response = (HttpWebResponse)request.GetResponse();
+
+                //header check for redirects
+                if (response.Headers != null && response.Headers.AllKeys.Contains("Location"))
+                {
+                    //got a location url 302
+                    var loc = response.Headers["Location"];
+                    if (!string.IsNullOrEmpty(loc))
+                    {
+                        if (!string.IsNullOrEmpty(loc.Trim()))
+                        {
+                            uri = new Uri(loc);
+                            return ApiAction<T>(uri, method, requireAuthentication);
+                        }
+                    }
+                }
+
+
 
                 if (response.StatusCode == HttpStatusCode.OK || response.StatusCode == HttpStatusCode.Created)
                 {

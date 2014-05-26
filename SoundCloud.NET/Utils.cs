@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace SoundCloud.NET
@@ -98,7 +99,7 @@ namespace SoundCloud.NET
             return
                 new UriBuilder(uri)
                     {
-                        Query = (uri.Query + "&" + name + "=" + value).TrimStart('&')
+                        Query = (uri.Query + "&" + name + "=" + value).TrimStart('&').TrimStart('?')
                     }
                     .Uri;
         }
@@ -107,7 +108,7 @@ namespace SoundCloud.NET
             return
                 new UriBuilder(uri)
                 {
-                    Query = (uri.Query + "&" + querystring).TrimStart('&')
+                    Query = (uri.Query + "&" + querystring).TrimStart('&').TrimStart('?')
                 }
                 .Uri;
         }
