@@ -57,10 +57,10 @@ namespace SoundCloud.NET
         public string Description { get; set; }
 
         [DataMember(Name = "streamable")]
-        public bool Streamabale { get; set; }
+        public bool? Streamabale { get; set; }
 
         [DataMember(Name = "downloadable")]
-        public bool Downloadable { get; set; }
+        public bool? Downloadable { get; set; }
 
         [DataMember(Name = "genre")]
         public string Genre { get; set; }
